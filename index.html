@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+
+    <title>EMPLOYEES LIST</title>
+
+    <link rel="shortcut icon" href="img/favicon.ico" type="image/x-icon">
+
+  </head>
+  <body>
+
+    <div id="app" class="container">
+      <div class="row">
+        <div class="col-12 text-center my-3">
+          <h2>EMPLOYEES</h2>
+        </div>
+
+        <div class="col-lg-6 mx-auto">  
+          <div class="card mb-3">
+            <div class="card-header">
+							Add new employee
+						</div>
+            <div class="card-body">
+              <form @submit.prevent="addEmployee">
+
+                <div id="message"></div>
+
+                <div class="mb-3">
+                  <label for="name" class="form-label">Name Surname</label>
+                  <input v-model="name" type="text" class="form-control" id="name" placeholder="John Doe" required>
+                  <div id="nameHelp" class="form-text">You have to capitalize the first letters from each of two words, <br>each word min two letters.</div>
+                </div>
+
+                <div class="mb-3">
+                  <label for="phone" class="form-label">Mobile Phone Number</label>
+                  <input v-model="phone" type="text" class="form-control" id="phone" placeholder="+380XXXXXXXXX" required>
+                  <div id="phoneHelp" class="form-text">Start from +380 and then 9 digits.</div>
+                </div>
+
+                <div class="mb-3">
+                  <label for="department" class="form-label">Department</label>
+                  <input v-model="department" type="text" class="form-control" id="department" placeholder="Accounting" required>
+                  <div id="departmentHelp" class="form-text">One word, min two letters, the first letter capitalized.</div>
+                </div>
+  
+                <button @click.prevent="addEmployee" type="submit" class="btn btn-primary w-100">Add</button>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12">
+          <table class="table">
+            <thead>
+              <tr>
+                <th scope="col">#</th>
+                <th scope="col">Name</th>
+                <th scope="col">Phone</th>
+                <th scope="col">Department</th>
+              </tr>
+            </thead>
+            <tbody id="tbody">
+              
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Option 1: Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+
+    <script src="https://unpkg.com/vue@3"></script>
+
+    <script>
+      const App = {
+        data() {
+          return {
+            name: '',
+            phone: '',
+            department: '',
+            id: 0,
+            errors: [],
+            phone_reg: /^\+380[\d]{9}$/,
+            name_reg: /^[A-Z]{1}[a-z']{1,50} [A-Z]{1}[a-z']{1,50}$/,
+            department_reg: /^[A-Z]{1}[a-zA-Z]{1,50}$/,
+          }
+        },
+        methods:{
+          addEmployee() {
+            let name_check = this.checkField(this.name, this.name_reg, 'Check name and surname template: John Doe');
+            let phone_check = this.checkField(this.phone, this.phone_reg, 'Check phone template: +380XXXXXXXXX');
+            let department_check = this.checkField(this.department, this.department_reg, 'Check department template: Accounting or CI');
+
+            if (name_check && phone_check && department_check) {
+              this.addEmployeeToTable();
+              this.showSuccess('Employee added successfully');
+              this.clearInputs();
+            } else {
+              this.showErrors();
+            }
+          },
+          checkField(field, regexp, err) {
+            if (field.match(regexp)) {
+              return true;
+            } else {
+              // this.addError('Check name and surname template: John Doe');
+              this.addError(err);
+              return false;
+            }
+          },
+          addError(message) {
+            this.errors.push(message);
+          },
+          showErrors() {
+            const message = document.getElementById('message');
+            message.className = 'alert alert-danger';
+            this.errors.forEach(error => {
+              const p =  document.createElement('p');
+              p.innerText = error;
+              message.appendChild(p);
+            });
+            setTimeout(() => {
+              this.errors = [];
+              message.className = '';
+              message.innerHTML = '';
+            }, 5000);
+          },
+          showSuccess(msg) {
+            const message = document.getElementById('message');
+            message.className = 'alert alert-success';
+            const p =  document.createElement('p');
+            p.innerText = msg;
+            message.appendChild(p);
+            setTimeout(() => {
+              message.className = '';
+              p.remove();
+            }, 5000);
+          },
+          addEmployeeToTable() {
+            this.id++;
+            
+            const tbody = document.getElementById('tbody');
+
+            const tr =  document.createElement('tr');
+            
+            tr.innerHTML = `
+                <th scope="row">${this.id++}</th>
+                <td>${this.name}</td>
+                <td>${this.phone}</td>
+                <td>${this.department}</td>
+            `;
+
+            tbody.appendChild(tr);
+          },
+          clearInputs() {
+            this.name = '';
+            this.phone = '';
+            this.department = '';
+          }
+        }
+      }
+
+      Vue.createApp(App).mount('#app');
+    </script>
+  </body>
+</html>
